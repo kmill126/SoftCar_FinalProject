@@ -25,10 +25,10 @@ import sys
 from multiprocessing import Process, Pipe
 from bs4 import BeautifulSoup
 import requests
-import datetime
 
 class WW:
     '''
+    WW stands for weather widget.
     This is an object that holds pipes for two functions to
     communicate, and the functions that run and stop a continuous
     weather check.
@@ -40,7 +40,7 @@ class WW:
         '''
         self.c1, self.c2 = Pipe()
 
-    def recurring_run(self, often_value, phone_number):
+    def recurring_run(self, often_value, phone_number, zipcode):
         '''
         Checks the weather in a continuous loop that runs
         on a defined time interval and is stopped by the
@@ -57,13 +57,16 @@ class WW:
                 The 10 digit phone number with attached carrier @ tag
                 to send the alert to. Ex. 1234567890@mms.att.net
         '''
-
         # Starts checking the weather at a given time interval
+
+        print("recurring")
+        sys.stdout.flush()
+       
         i = 0
-        mode = "Umbrella"
+        mode = "Clear"  
         while True:
             if i % (often_value * 60) == 0:
-                weather = grab_baltimore_weather()
+                weather = grab_weather(zipcode)
                 
                 # If some form of rain is happening, and previously wasn't then alert
                 if "Rain" in weather or "Shower" in weather \
@@ -96,7 +99,13 @@ class WW:
             # Checks if the weather checking loop should be stopped
             if self.c2.poll() and self.c2.recv() == "KILL":
                 messagebox.showinfo("Recurring Weather Checker", 
-                    "Your phone is successfully unpaired")
+                    "Your phone is successfully unpaired.\
+                    \nIt is safe to close the widget.")
+                alert = "Umbrella Project stopped. Phone unpaired."
+                server = smtplib.SMTP( "smtp.gmail.com", 587 )
+                server.starttls()
+                server.login( 'SoftwareCarpentry1@gmail.com', 'SoftCar1')
+                server.sendmail( 'SoftwareCarpentry1', phone_number, alert)
                 break
 
             time.sleep(2)
@@ -118,9 +127,9 @@ class WW:
         self.c1.send("KILL")
         # exit()
 
-def grab_baltimore_weather():
+def grab_weather(zipcode):   
     '''
-    Searches the website "https://weather.com/weather/today/l/21218:4:US"
+    Searches the website "https://weather.com/weather/today/l/***ZIPCODE***:4:US"
     for the current weather conditions and returns that
 
     **Parameters**
@@ -131,10 +140,9 @@ def grab_baltimore_weather():
             The current weather acording to the website contained in > <
             Example: >Light Rain<
     '''
-
-    webpage = "https://weather.com/weather/today/l/21218:4:US"
+    webpage = "https://weather.com/weather/today/l/%s:4:US" % (zipcode)
     data = requests.get(webpage)
-    soup = str(BeautifulSoup(data.text, features='lxml'))
+    soup = str(BeautifulSoup(data.text, features="html.parser"))
     looking_for = 'class="today_nowcard-phrase"'
     chopped_text = soup.split(looking_for)
     start_is_weather = chopped_text[1].split("/")
@@ -173,7 +181,12 @@ def weather_widget():
 
         check1 = False
         check2 = False
+
+        zipcode = z_code.get()
+        if len(zipcode)==0:
+            zipcode = "21218"  #Default is Baltimore, MD
         
+
         #Check for correct input of how often to run
         try:
             often_value = int(often.get())
@@ -185,7 +198,8 @@ def weather_widget():
                 server = smtplib.SMTP( "smtp.gmail.com", 587 )
                 server.starttls()
                 server.login( 'SoftwareCarpentry1@gmail.com', 'SoftCar1')
-                test_msg = "Your phone is successfully paired!"
+                test_msg = "Your phone is successfully paired.\
+                            \nWhen it starts raining you will recieve an alert."
                 server.sendmail( 'SoftwareCarpentry1', phone_number, test_msg)
 
                 answer = messagebox.askyesno("Phone Pairing", 
@@ -205,15 +219,17 @@ def weather_widget():
                     + "has been selected and try again.")
             
         except ValueError:
-            messagebox.showinfo("Error", "Entry value must be a number")
+            messagebox.showinfo("Error", "Entry value must be an integer")
 
+
+        
         # If both inputs are correct and user indicates phone has been 
         # successfully connected to, then starts the process of the
         # recurring_run function
         if check1 and check2:
-            p1 = Process(target=ww.recurring_run, args=(often_value, phone_number))
+            p1 = Process(target=ww.recurring_run, args=(often_value, phone_number, zipcode))
             p1.start()
-    
+        
     def manual_check():
         '''
         Checks the current weather and creates a pop up message stating it
@@ -224,7 +240,11 @@ def weather_widget():
         **Returns**
             None, but will create a pop up message
         '''
-        weather = grab_baltimore_weather()
+        
+        zipcode = z_code.get()
+        if len(zipcode)==0:
+            zipcode = "21218"  #Default is Baltimore, MD
+        weather = grab_weather(zipcode)
         messagebox.showinfo("Current Weather", "The weather outside is:\n\n"
             + weather)
 
@@ -238,7 +258,7 @@ def weather_widget():
     master.pack(fill=BOTH, expand=2)
 
     # Makes the left pane
-    left_pane = PanedWindow(master, orient=VERTICAL, relief=RAISED, height=230, width=200)
+    left_pane = PanedWindow(master, orient=VERTICAL, relief=RAISED, height=300, width=200)
     master.add(left_pane)
     left = LabelFrame(left_pane, text=" The Umbrella Project")
     left_pane.add(left)
@@ -252,12 +272,20 @@ def weather_widget():
     var.set(intro_message)
     intro.pack()
 
+    zcode_label = ("What zipcode are you interested in? \
+                    Default = Baltimore, MD")
+    zcode = Label(left, text=zcode_label, wraplength=190)
+    zcode.pack()
+    z_code = Entry(left, bd=5)
+    z_code.pack()    
+
     p_num_label = ("What phone number should alerts be sent to?")
     p_num = Label(left, text=p_num_label, wraplength=190)
     p_num.pack()
     num = Entry(left, bd=5)
     num.pack()
 
+    
     spacer = Label(left, text="Select carrier: ", width=200, anchor=W)
     spacer.pack()
 
