@@ -95,14 +95,14 @@ class WW:
 
             # Checks if the weather checking loop should be stopped
             if self.c2.poll() and self.c2.recv() == "KILL":
-                messagebox.showinfo("Recurring Weather Checker", 
-                    "Your phone is successfully unpaired.\
-                    \nIt is safe to close the widget.")
-                alert = "Umbrella Project stopped. Phone unpaired."
+                alert = "Umbrella Project terminated. Phone unpaired."
                 server = smtplib.SMTP( "smtp.gmail.com", 587 )
                 server.starttls()
                 server.login( 'SoftwareCarpentry1@gmail.com', 'SoftCar1')
                 server.sendmail( 'SoftwareCarpentry1', phone_number, alert)
+                messagebox.showinfo("Recurring Weather Checker", 
+                    "Your phone is successfully unpaired.\n"
+                    + "It is safe to close the widget.")
                 break
 
             time.sleep(2)
