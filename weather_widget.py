@@ -57,11 +57,8 @@ class WW:
                 The 10 digit phone number with attached carrier @ tag
                 to send the alert to. Ex. 1234567890@mms.att.net
         '''
-        # Starts checking the weather at a given time interval
 
-        print("recurring")
-        sys.stdout.flush()
-       
+        # Starts checking the weather at a given time interval
         i = 0
         mode = "Clear"  
         while True:
@@ -198,8 +195,8 @@ def weather_widget():
                 server = smtplib.SMTP( "smtp.gmail.com", 587 )
                 server.starttls()
                 server.login( 'SoftwareCarpentry1@gmail.com', 'SoftCar1')
-                test_msg = "Your phone is successfully paired.\
-                            \nWhen it starts raining you will recieve an alert."
+                test_msg = ("Your phone is successfully paired.\n"
+                    + "When it starts raining you will recieve an alert.")
                 server.sendmail( 'SoftwareCarpentry1', phone_number, test_msg)
 
                 answer = messagebox.askyesno("Phone Pairing", 
@@ -272,17 +269,19 @@ def weather_widget():
     var.set(intro_message)
     intro.pack()
 
-    zcode_label = ("What zipcode are you interested in? \
-                    Default = Baltimore, MD")
+    zcode_label = ("What zipcode are you interested in? "
+                    + "Default = Baltimore, MD")
     zcode = Label(left, text=zcode_label, wraplength=190)
     zcode.pack()
     z_code = Entry(left, bd=5)
+    z_code.insert(END, "21218")
     z_code.pack()    
 
-    p_num_label = ("What phone number should alerts be sent to?")
+    p_num_label = ("What 10 digit phone number should alerts be sent to?")
     p_num = Label(left, text=p_num_label, wraplength=190)
     p_num.pack()
     num = Entry(left, bd=5)
+    num.insert(END, "0008675309")
     num.pack()
 
     
@@ -298,11 +297,11 @@ def weather_widget():
     carrier3.pack(side=RIGHT)
 
     # Makes the right pane
-    right_pane = PanedWindow(master, orient=VERTICAL, relief=RAISED, height=230, width=200)
+    right_pane = PanedWindow(master, orient=VERTICAL, relief=RAISED, height=300, width=200)
     master.add(right_pane)
 
     # Makes the top part of the right pane
-    top_right_pane = PanedWindow(right_pane, orient=VERTICAL, relief=RAISED, height=160, width=200)
+    top_right_pane = PanedWindow(right_pane, orient=VERTICAL, relief=RAISED, height=200, width=200)
     right_pane.add(top_right_pane)
     top_right = LabelFrame(top_right_pane, text="Recurring Weather Checker")
     top_right_pane.add(top_right)
@@ -312,9 +311,10 @@ def weather_widget():
     recurance = Label(top_right, text=recurance_label, wraplength=190)
     recurance.pack()
     often = Entry(top_right, bd=5)
+    often.insert(END, "15")
     often.pack()
     warning_message = ("*If you do not press stop before closing, "
-        + "The Umbrella Project will continue running in the background")
+        + "The Umbrella Project will continue running in the background\n")
     warning = Label(top_right, text=warning_message, width=200, wraplength=205)
     warning.pack(side=BOTTOM)
     run_button = Button(top_right, text = "Run", command = continuous_check, width=12)
@@ -323,13 +323,13 @@ def weather_widget():
     exit_button.pack(side=RIGHT)
 
     # Makes the bottom part of the right pane
-    bottom_right_pane = PanedWindow(right_pane, orient=VERTICAL, relief=RAISED, height=70, width=200)
+    bottom_right_pane = PanedWindow(right_pane, orient=VERTICAL, relief=RAISED, height=100, width=200)
     right_pane.add(bottom_right_pane)
     bottom_right = LabelFrame(bottom_right_pane, text="Current Weather Check")
     bottom_right_pane.add(bottom_right)
 
     # Adds in the various parts of the bottom right pane
-    instant_label = ("Manually run the weather checker")
+    instant_label = ("Manually run the weather checker\n")
     instant = Label(bottom_right, text=instant_label, wraplength=190)
     instant.pack()
     check_button = Button(bottom_right, text = "Check now", command = manual_check)
