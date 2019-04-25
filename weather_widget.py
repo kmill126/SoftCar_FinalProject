@@ -337,6 +337,28 @@ def weather_widget():
     
     mainloop()
 
+def unit_tests():
+
+    weather = ["Rain","rain", "Shower", "shower", "Storm",
+               "Snow","snow", "Sleet", "sleet", "storm", "Partly",
+               "partly", "Sunny", "sunny", "Cloudy", "cloudy"
+                ]
+    
+    working_check = False
+    for i in weather:
+        if i in grab_weather(21218):
+            working_check = True
+
+    # grab_weather() is the only function with a return value and is feasable to test
+    def test_grab_weather(zipcode):
+        assert(type(zipcode) == int or type(zipcode) == str), "Error: Zipcode not integer or string"
+        assert(working_check == True), "Error: Could not grab weather"
+        
+    test_grab_weather(21218)
+
+
+
 
 if __name__ == "__main__":
+##    unit_tests()
     weather_widget()
