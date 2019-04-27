@@ -21,12 +21,12 @@ the computer's task manager.
 
 **Functions**
 
+    **weather_widget
+        all you need to run this application. Launches a GUI that
+        allows users to either continuously check the weather at
+        a given interval, or manually check the weather at that instant
     grab_weather
         scrapes the data from weather.com at a given zipcode
-    weather_widget
-        launches a GUI that allows users to either continuously check the
-        weather at a given interval, or manually check the weather at that
-        instant
     continuous_check
         contained within weather_widget(). Checks the weather in an input
         zipcode at an input frequency and sends a text to a given phone
