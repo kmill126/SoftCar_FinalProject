@@ -7,19 +7,19 @@ To use this application all you will need is the weather_widget.py file, and you
 This will create a pop up window using tkinter from which you can run The Umbrella Project
 
 weather_widget inputs:
-5 digit US zipcode
-10 digit US phone number (without dashes)
-carrier: 
-     AT&T, T-Mobile, and Verizon are the options but other carriers could be incorporated into the code)
-number of minutes you would like the text alert functionality to check for rain
+- 5 digit US zipcode
+- 10 digit US phone number (without dashes)
+- carrier: 
+- - AT&T, T-Mobile, and Verizon are the options but other carriers could be incorporated into the code)
+- number of minutes you would like the text alert functionality to check for rain
 
 Required imports:
-
-from tkinter import *
-from tkinter import messagebox
-import time
-import smtplib
-import sys
-from multiprocessing import Process, Pipe
-from bs4 import BeautifulSoup
-import requests
+-
+- from tkinter import *
+- from tkinter import messagebox
+- import time
+- import smtplib
+- import sys
+- from multiprocessing import Process, Pipe
+- from bs4 import BeautifulSoup
+- import requests
