@@ -4,7 +4,8 @@ Authors: Josh Cole and Katherine Miller
 Date & Time Due: 4/29/19 11:59 pm
 
 The Umbrella Project is a "Weather Widget" that when run, launches a
-GUI that allows the user to check the weather in a given zipcode.
+GUI that allows the user to check the weather for a given zipcode in 
+one of the two following ways.
 
 A manual weather check gives current weather conditions in a pop-up box.
 Because no recurring process is started in manual check, it is safe to
@@ -67,7 +68,7 @@ class WW:
     def __init__(self):
         '''
         This initializes the process pipes that allow the
-        functions to communicate
+        following functions to communicate
         '''
         self.c1, self.c2 = Pipe()
 
@@ -87,6 +88,9 @@ class WW:
             phone_number: *str*
                 The 10 digit phone number with attached carrier @ tag
                 to send the alert to. Ex. 1234567890@mms.att.net
+            zipcode: *str* or *int*
+                The United States five digit zipcode corresponding
+                to the location where the weather is to be checked
         '''
 
         # Starts checking the weather at a given time interval
@@ -126,6 +130,7 @@ class WW:
                         server.sendmail('SoftwareCarpentry1', phone_number, alert)
 
             # Checks if the weather checking loop should be stopped
+            # and send appropriate messages
             if self.c2.poll() and self.c2.recv() == "KILL":
                 alert = "Umbrella Project terminated. Phone unpaired."
                 server = smtplib.SMTP("smtp.gmail.com", 587)
@@ -154,18 +159,17 @@ class WW:
             None
         '''
         self.c1.send("KILL")
-        # exit()
 
 
 def grab_weather(zipcode):
     '''
-    Searches the website "https://weather.com/weather/today/l/***ZIPCODE***:4:US"
-    for the current weather conditions and returns that
+    Searches the following website for the current weather 
+    "https://weather.com/weather/today/l/***ZIPCODE***:4:US"
 
     **Parameters**
         zipcode: *str* or *int*
-            The United States five digit zipcode corresponding to the location
-            where the weather is to be checked
+            The United States five digit zipcode corresponding
+            to the location where the weather is to be checked
 
     **Returns**
         weather: *str*
@@ -190,7 +194,11 @@ def weather_widget():
     or stops raining
 
     **Parameters**
-        None, but some things are user input in the user interface
+        None, but some things are user input in the user interface:
+            zipcode: default is 21218
+            phone number: default is 0008675309
+            carrier: no default, radio button options
+            check frequency: default is 15 min
 
     **Returns**
         None, but will create pop up messages and send text messages
@@ -217,7 +225,8 @@ def weather_widget():
 
         zipcode = z_code.get()
         if len(zipcode) == 0:
-            zipcode = "21218"  # Default is Baltimore, MD
+            # Default is Baltimore, MD
+            zipcode = "21218"
 
         # Check for correct input of how often to run
         try:
@@ -259,6 +268,8 @@ def weather_widget():
         if check1 and check2:
             p1 = Process(target=ww.recurring_run, args=(often_value, phone_number, zipcode))
             p1.start()
+            often.insert(0, "Checking every ")
+            often.insert(END, " min")
 
     def manual_check():
         '''
@@ -273,7 +284,8 @@ def weather_widget():
 
         zipcode = z_code.get()
         if len(zipcode) == 0:
-            zipcode = "21218"  # Default is Baltimore, MD
+            # Default is Baltimore, MD
+            zipcode = "21218"
         weather = grab_weather(zipcode)
         messagebox.showinfo("Current Weather", "The weather outside is:\n\n"
                             + weather)
